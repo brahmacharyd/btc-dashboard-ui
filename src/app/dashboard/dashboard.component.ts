@@ -20,12 +20,16 @@ export class BtcDashboardComponent implements OnInit, OnDestroy {
 
   buyPrice: number | null = null;
   buyTargetPrice: number | null = null;
+  buyStopLoss: number | null = null;
 
   sellPrice: number | null = null;
   sellTargetPrice: number | null = null;
+  sellStopLoss: number | null = null;
 
   topBids: { price: number; qty: number }[] = [];
   topAsks: { price: number; qty: number }[] = [];
+
+  zones: any[] = [];
 
   lastUpdated = new Date();
 
@@ -34,7 +38,7 @@ export class BtcDashboardComponent implements OnInit, OnDestroy {
   constructor(private btcSocketService: BtcSocketService) {}
 
   ngOnInit() {
-    this.btcSub = this.btcSocketService.getBtcStream().subscribe({
+    this.btcSub = this.btcSocketService.getBtcObservable().subscribe({
       next: (data) => {
         this.loading = false;
         this.error = null;
@@ -44,34 +48,43 @@ export class BtcDashboardComponent implements OnInit, OnDestroy {
         this.volume = data.volume;
         this.topBids = data.topBids;
         this.topAsks = data.topAsks;
+        this.zones = data.zones || [];
 
         this.signal = data.signal === 'HOLD' ? 'NEUTRAL' : data.signal;
         this.signalHighlight = this.signal !== 'NEUTRAL';
 
         if (this.signal === 'BUY') {
-          this.buyPrice = this.price - 100;
-          this.buyTargetPrice = data.target || this.price + 150;
+          this.buyPrice = this.price;
+          this.buyTargetPrice = data.target || null;
+          this.buyStopLoss = data.stopLoss || null;
+
           this.sellPrice = null;
           this.sellTargetPrice = null;
+          this.sellStopLoss = null;
         } else if (this.signal === 'SELL') {
-          this.sellPrice = this.price + 100;
-          this.sellTargetPrice = data.target || this.price - 150;
+          this.sellPrice = this.price;
+          this.sellTargetPrice = data.target || null;
+          this.sellStopLoss = data.stopLoss || null;
+
           this.buyPrice = null;
           this.buyTargetPrice = null;
+          this.buyStopLoss = null;
         } else {
           this.buyPrice = null;
           this.buyTargetPrice = null;
+          this.buyStopLoss = null;
+
           this.sellPrice = null;
           this.sellTargetPrice = null;
+          this.sellStopLoss = null;
         }
 
         this.lastUpdated = new Date();
       },
       error: (err) => {
-        this.error = 'Error receiving live data';
         this.loading = false;
-        console.error('BTC stream error:', err);
-      }
+        this.error = 'Error receiving BTC data';
+      },
     });
   }
 

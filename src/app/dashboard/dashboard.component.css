@@ -1,12 +1,42 @@
-.buy {
-    color: green;
-    font-weight: bold;
-  }
-  .sell {
-    color: red;
-    font-weight: bold;
-  }
-  .neutral {
-    color: gray;
-  }
-  
+.loading, .error {
+  font-weight: bold;
+  font-size: 1.2em;
+  color: red;
+}
+
+.price-section {
+  margin-bottom: 15px;
+}
+
+.signal-section {
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.signal-section.buy {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.signal-section.sell {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.signal-section.neutral {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.orderbook-section ul,
+.zones-section ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.orderbook-section li,
+.zones-section li {
+  padding: 3px 0;
+  font-family: monospace;
+}

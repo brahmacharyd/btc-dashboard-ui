@@ -38,8 +38,7 @@
           [ngClass]="{
             'text-green-600': signal === 'BUY',
             'text-red-600': signal === 'SELL',
-            'text-gray-600': signal === 'NEUTRAL',
-            'bg-yellow-200': signalHighlight
+            'text-gray-600': signal === 'NEUTRAL'
           }"
           class="text-xl font-bold px-2 rounded"
         >
@@ -101,7 +100,43 @@
       <div class="mt-6 text-center text-sm text-gray-400">
         Last updated: {{ lastUpdated | date:'shortTime' }} <br />
         Updated every second using real-time data from Binance
-      </div>
+      </div>  
+      <!-- Signal Instructions -->
+<div class="bg-blue-50 border border-blue-300 rounded p-3 text-sm text-blue-700 space-y-1">
+  <p><strong>Signal Instructions (v2 Enhanced Algorithm):</strong></p>
+  <ul class="list-disc list-inside">
+    <li><strong>Multi-Timeframe Confirmation:</strong> Signals require alignment across 1m, 5m, and 15m timeframes for higher accuracy.</li>
+    <li><strong>Volume-Weighted:</strong> Signals only trigger when volume is 30% above average, reducing false positives.</li>
+    <li><strong>Trend-Filtered:</strong> BUY signals are suppressed in strong downtrends and SELL signals in strong uptrends.</li>
+    <li><strong>BUY Signal (Confirmed):</strong> 
+      <ul class="list-[circle] list-inside ml-4">
+        <li>Price enters bullish zone across multiple timeframes</li>
+        <li>Order book shows bid dominance (1.2x more bids than asks)</li>
+        <li>Volume spike confirms momentum</li>
+      </ul>
+    </li>
+    <li><strong>SELL Signal (Confirmed):</strong> 
+      <ul class="list-[circle] list-inside ml-4">
+        <li>Price enters bearish zone across multiple timeframes</li>
+        <li>Order book shows ask dominance (1.2x more asks than bids)</li>
+        <li>Volume spike confirms momentum</li>
+      </ul>
+    </li>
+    <li><strong>HOLD Signal:</strong> 
+      <ul class="list-[circle] list-inside ml-4">
+        <li>No clear multi-timeframe confirmation</li>
+        <li>Conflicting signals between timeframes</li>
+        <li>Volume below threshold</li>
+        <li>Price in consolidation zone</li>
+      </ul>
+    </li>
+    <li><strong>Cooldown Period:</strong> After any signal, system enters 10-second cooldown to prevent rapid signal flipping.</li>
+    <li><strong>Dynamic Targets:</strong> Profit targets and stop losses are calculated based on nearest significant zones.</li>
+  </ul>
+  <div class="mt-2 italic text-blue-600">
+    <p>Note: These are algorithmic suggestions only. Always conduct your own analysis and manage risk appropriately.</p>
+  </div>
+</div>
     </div>
   </div>
 </div>
