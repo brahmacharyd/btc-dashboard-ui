@@ -1,62 +1,61 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { BtcData, BtcPriceService } from '../btc-price.service.ts.service';
 import { Subscription } from 'rxjs';
+import { BtcSocketService } from '../btc-price.service';
 
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-btc-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css'],
+  styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit, OnDestroy {
-  price: number = 0;
-  oi: number = 0;
-  volume: number = 0;
-  signal: 'BUY' | 'SELL' | 'NEUTRAL' = 'NEUTRAL';
-  lastUpdated: Date | null = null;
+export class BtcDashboardComponent implements OnInit, OnDestroy {
+  loading = true;
   error: string | null = null;
+
+  price = 0;
+  oi = 0;
+  volume = 0;
+
+  signal: 'BUY' | 'SELL' | 'NEUTRAL' = 'NEUTRAL';
+  signalHighlight = false;
 
   buyPrice: number | null = null;
   buyTargetPrice: number | null = null;
+
   sellPrice: number | null = null;
   sellTargetPrice: number | null = null;
 
   topBids: { price: number; qty: number }[] = [];
   topAsks: { price: number; qty: number }[] = [];
 
-  loading: boolean = true;
-  private subscription: Subscription | null = null;
-  signalHighlight: boolean = false;
+  lastUpdated = new Date();
 
-  constructor(private btcService: BtcPriceService) {}
+  private btcSub: Subscription | null = null;
 
-  ngOnInit(): void {
-    this.subscription = this.btcService.getPriceUpdates().subscribe(
-      (data: BtcData) => {
+  constructor(private btcSocketService: BtcSocketService) {}
+
+  ngOnInit() {
+    this.btcSub = this.btcSocketService.getBtcStream().subscribe({
+      next: (data) => {
         this.loading = false;
         this.error = null;
-  
-        this.price = data.price || 0;
+
+        this.price = data.price;
         this.oi = data.oi;
         this.volume = data.volume;
-        this.topBids = data.topBids?.length ? data.topBids : [];
-        this.topAsks = data.topAsks?.length ? data.topAsks : [];       
-  
-        const newSignal = data.signal as 'BUY' | 'SELL' | 'NEUTRAL';
-        if (this.signal !== newSignal) {
-          this.signalHighlight = true;
-          setTimeout(() => (this.signalHighlight = false), 2000);
-        }
-  
-        this.signal = newSignal;
-  
+        this.topBids = data.topBids;
+        this.topAsks = data.topAsks;
+
+        this.signal = data.signal === 'HOLD' ? 'NEUTRAL' : data.signal;
+        this.signalHighlight = this.signal !== 'NEUTRAL';
+
         if (this.signal === 'BUY') {
-          this.buyPrice = this.price;
-          this.buyTargetPrice = this.calculateBuyTargetPrice();
+          this.buyPrice = this.price - 100;
+          this.buyTargetPrice = data.target || this.price + 150;
           this.sellPrice = null;
           this.sellTargetPrice = null;
         } else if (this.signal === 'SELL') {
-          this.sellPrice = this.price;
-          this.sellTargetPrice = this.calculateSellTargetPrice();
+          this.sellPrice = this.price + 100;
+          this.sellTargetPrice = data.target || this.price - 150;
           this.buyPrice = null;
           this.buyTargetPrice = null;
         } else {
@@ -65,27 +64,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.sellPrice = null;
           this.sellTargetPrice = null;
         }
-  
+
         this.lastUpdated = new Date();
       },
-      (err) => {
+      error: (err) => {
+        this.error = 'Error receiving live data';
         this.loading = false;
-        this.error = 'Failed to fetch live data. Please try again later.';
-        console.error('Live data error:', err);
+        console.error('BTC stream error:', err);
       }
-    );
-  }
-  
-
-  ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
+    });
   }
 
-  calculateBuyTargetPrice(): number {
-    return +(this.price * 1.02).toFixed(2); // 2% up target
-  }
-
-  calculateSellTargetPrice(): number {
-    return +(this.price * 0.98).toFixed(2); // 2% down target
+  ngOnDestroy() {
+    this.btcSub?.unsubscribe();
   }
 }
