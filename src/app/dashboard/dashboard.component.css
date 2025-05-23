@@ -1,0 +1,12 @@
+.buy {
+    color: green;
+    font-weight: bold;
+  }
+  .sell {
+    color: red;
+    font-weight: bold;
+  }
+  .neutral {
+    color: gray;
+  }
+  

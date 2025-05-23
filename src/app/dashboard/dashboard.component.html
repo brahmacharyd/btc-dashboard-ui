@@ -1,0 +1,118 @@
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white shadow-lg rounded-2xl p-6">
+      <h1 class="text-2xl font-bold text-center text-blue-800 mb-4">
+        📊 BTC/OI Live Dashboard
+      </h1>
+  
+      <div *ngIf="loading" class="text-center py-12">
+        <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-12 w-12 mx-auto mb-4"></div>
+        <div class="text-gray-600">Loading data...</div>
+      </div>
+  
+      <div *ngIf="!loading && error" class="text-red-600 text-center py-8">
+        {{ error }}
+      </div>
+  
+      <div *ngIf="!loading && !error" class="space-y-4">
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600 font-medium">BTC Price:</span>
+          <span class="text-xl font-bold text-blue-600">₹{{ price | number: '1.2-2' }}</span>
+        </div>
+  
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600 font-medium">Open Interest:</span>
+          <span class="text-xl font-bold text-purple-600">{{ oi | number }}</span>
+        </div>
+  
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600 font-medium">Volume:</span>
+          <span class="text-xl font-bold text-indigo-600">{{ volume | number:'1.3-3' }} BTC</span>
+        </div>
+  
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600 font-medium">Signal:</span>
+          <span
+            [ngClass]="{
+              'text-green-600': signal === 'BUY',
+              'text-red-600': signal === 'SELL',
+              'text-gray-600': signal === 'NEUTRAL',
+              'bg-yellow-200': signalHighlight
+            }"
+            class="text-xl font-bold px-2 rounded"
+          >
+            {{ signal }}
+          </span>
+        </div>
+  
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600 font-medium">Buy Price:</span>
+          <span class="text-lg font-semibold text-green-600">
+            {{ buyPrice !== null ? ('₹' + (buyPrice | number: '1.2-2')) : 'Please be patient...' }}
+          </span>
+        </div>
+  
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600 font-medium">Buy Target:</span>
+          <span class="text-lg font-semibold text-green-400">
+            {{ buyTargetPrice !== null ? ('₹' + (buyTargetPrice | number: '1.2-2')) : 'Please be patient...' }}
+          </span>
+        </div>
+  
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600 font-medium">Sell Price:</span>
+          <span class="text-lg font-semibold text-red-600">
+            {{ sellPrice !== null ? ('₹' + (sellPrice | number: '1.2-2')) : 'Please be patient...' }}
+          </span>
+        </div>
+  
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600 font-medium">Sell Target:</span>
+          <span class="text-lg font-semibold text-red-400">
+            {{ sellTargetPrice !== null ? ('₹' + (sellTargetPrice | number: '1.2-2')) : 'Please be patient...' }}
+          </span>
+        </div>
+  
+        <!-- Order Book -->
+        <div class="mt-6">
+          <h2 class="text-sm font-bold text-gray-600 mb-2">📉 Order Book Snapshot</h2>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <h3 class="text-green-700 font-semibold mb-1">🟢 Top Buyers (Bid)</h3>
+              <ul class="space-y-1">
+                <li *ngFor="let bid of topBids">
+                  ₹{{ bid.price | number: '1.2-2' }} — <span class="text-gray-500">{{ bid.qty | number:'1.3-3' }} BTC</span>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 class="text-red-700 font-semibold mb-1">🔴 Top Sellers (Ask)</h3>
+              <ul class="space-y-1">
+                <li *ngFor="let ask of topAsks">
+                  ₹{{ ask.price | number: '1.2-2' }} — <span class="text-gray-500">{{ ask.qty | number:'1.3-3' }} BTC</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+  
+        <div class="mt-6 text-center text-sm text-gray-400">
+          Last updated: {{ lastUpdated | date: 'shortTime' }} <br />
+          Updated every second using real-time data from Binance
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Simple CSS Spinner -->
+  <style>
+  .loader {
+    border-top-color: #3498db;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  </style>
+  
