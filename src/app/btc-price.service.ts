@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from 'environments/environments.prod';
 import { Observable, Subject } from 'rxjs';
 
 interface OrderBookEntry {
@@ -24,8 +25,8 @@ export class BtcSocketService {
   private lastSignal: 'BUY' | 'SELL' | 'HOLD' = 'HOLD';
   private signalCount = 0;
 
-  private priceSocket = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@trade');
-  private orderBookSocket = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@depth5@100ms');
+  private priceSocket = new WebSocket(environment.priceSocketUrl);
+  private orderBookSocket = new WebSocket(environment.orderBookSocketUrl);
 
   private btcSubject = new Subject<BtcData>();
 

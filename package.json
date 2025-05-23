@@ -3,12 +3,10 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "serve":"ng serve",
     "build": "ng build --configuration production",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "start:backend": "node ../btc-dashboard/app.js",
-  "start:frontend": "ng serve --host 0.0.0.0",
-  "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\""
+    "watch": "ng build --watch --configuration development"
+  
   },
   "private": true,
   "dependencies": {

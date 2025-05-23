@@ -1,6 +1,6 @@
 export const environment = {
     production: true,
-    // socketUrl: 'https://btc-dashboard-2ijv.onrender.com'
-    socketUrl: 'http://localhost:3000'
+    priceSocketUrl: 'wss://stream.binance.com:9443/ws/btcusdt@trade',
+    orderBookSocketUrl: 'wss://stream.binance.com:9443/ws/btcusdt@depth5@100ms'
   };
   
