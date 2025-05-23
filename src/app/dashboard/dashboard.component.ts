@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { BtcData, BtcPriceService } from '../btc-price.service.ts.service';
-import { Subscription, timer } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,7 +17,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   buyPrice: number | null = null;
   buyTargetPrice: number | null = null;
-
   sellPrice: number | null = null;
   sellTargetPrice: number | null = null;
 
@@ -26,30 +25,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   loading: boolean = true;
   private subscription: Subscription | null = null;
-
   signalHighlight: boolean = false;
 
   constructor(private btcService: BtcPriceService) {}
 
   ngOnInit(): void {
-    this.subscription = this.btcService.getPriceUpdates().subscribe({
-      next: (data: BtcData & { oi: number; volume: number; topBids: any[]; topAsks: any[] }) => {
+    this.subscription = this.btcService.getPriceUpdates().subscribe(
+      (data: BtcData) => {
         this.loading = false;
         this.error = null;
-
-        this.price = data.price;
+  
+        this.price = data.price || 0;
         this.oi = data.oi;
         this.volume = data.volume;
-        this.topBids = data.topBids;
-        this.topAsks = data.topAsks;
-
-        if (this.signal !== data.signal) {
+        this.topBids = data.topBids?.length ? data.topBids : [];
+        this.topAsks = data.topAsks?.length ? data.topAsks : [];       
+  
+        const newSignal = data.signal as 'BUY' | 'SELL' | 'NEUTRAL';
+        if (this.signal !== newSignal) {
           this.signalHighlight = true;
           setTimeout(() => (this.signalHighlight = false), 2000);
         }
-
-        this.signal = data.signal as 'BUY' | 'SELL' | 'NEUTRAL';
-
+  
+        this.signal = newSignal;
+  
         if (this.signal === 'BUY') {
           this.buyPrice = this.price;
           this.buyTargetPrice = this.calculateBuyTargetPrice();
@@ -66,26 +65,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.sellPrice = null;
           this.sellTargetPrice = null;
         }
-
+  
         this.lastUpdated = new Date();
       },
-      error: (err) => {
+      (err) => {
         this.loading = false;
         this.error = 'Failed to fetch live data. Please try again later.';
-        console.error('Socket error:', err);
-      },
-    });
+        console.error('Live data error:', err);
+      }
+    );
   }
+  
 
   ngOnDestroy(): void {
     this.subscription?.unsubscribe();
   }
 
   calculateBuyTargetPrice(): number {
-    return +(this.price * 1.02).toFixed(2);
+    return +(this.price * 1.02).toFixed(2); // 2% up target
   }
 
   calculateSellTargetPrice(): number {
-    return +(this.price * 0.98).toFixed(2);
+    return +(this.price * 0.98).toFixed(2); // 2% down target
   }
 }
