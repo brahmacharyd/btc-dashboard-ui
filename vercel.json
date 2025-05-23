@@ -2,9 +2,8 @@
     "version": 2,
     "builds": [
       {
-        "src": "angular.json",
-        "use": "@vercel/static-build",
-        "config": { "distDir": "dist/btc-dashboard-ui" }
+        "src": "package.json",
+        "use": "@vercel/static-build"
       }
     ],
     "routes": [
@@ -12,6 +11,8 @@
         "src": "/(.*)",
         "dest": "/index.html"
       }
-    ]
+    ],
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist/btc-dashboard-ui"
   }
   
