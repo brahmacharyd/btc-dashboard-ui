@@ -1,5 +1,17 @@
 {
-    "buildCommand": "ng build --configuration production",
-    "outputDirectory": "dist/btc-dashboard-ui"
+    "version": 2,
+    "builds": [
+      {
+        "src": "angular.json",
+        "use": "@vercel/static-build",
+        "config": { "distDir": "dist/btc-dashboard-ui" }
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "/index.html"
+      }
+    ]
   }
   
